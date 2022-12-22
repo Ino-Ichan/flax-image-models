@@ -10,11 +10,11 @@ ModuleDef = Any
 
 
 class Dropout(nn.Module):
-    """ Dropout layer.
+    r""" Dropout layer.
         Mainly copied from rwightman's efficientnet-jax codes
-        Attributes:
-            drop: the dropout probability.  (_not_ the keep rate!)
-            deterministic: for inference
+    Args:
+        drop: the dropout probability.  (_not_ the keep rate!)
+        deterministic: for inference
     """
     drop: float
     deterministic: Optional[bool] = None
@@ -38,9 +38,9 @@ class Dropout(nn.Module):
 class DropPath(nn.Module):
     """ Dropout layer.
         Mainly copied from rwightman's efficientnet-jax codes
-        Attributes:
-            drop: the dropout probability.  (_not_ the keep rate!)
-            deterministic: for inference
+    Args:
+        drop: the dropout probability.  (_not_ the keep rate!)
+        deterministic: for inference
     """
     drop: float = 0.
     deterministic: Optional[bool] = None
