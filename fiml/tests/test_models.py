@@ -16,7 +16,7 @@ def test_convnext():
     rng = jax.random.PRNGKey(0)
     rng, rng_dp = jax.random.split(rng, 2)
 
-    shape = (4, 224, 224, 3)
+    shape = (1, 224, 224, 3)
     inp = np.random.randn(*shape)
 
     model_share = partial(
@@ -28,8 +28,6 @@ def test_convnext():
         kernel_size=7,
         ls_init_value=1e-6,
         patch_size=4,
-        head_init_scale=1.,
-        head_norm_first=False,
         conv_bias=True,
         act_layer=nn.gelu,
         drop_rate=0.5,
@@ -56,12 +54,12 @@ def test_convnext():
                 "dropout": rng,
             },
             jnp.ones(shape=shape),
-            deterministic=False)["params"]
+            train=False)["params"]
         out = conv_next.apply({"params": params},
                               inp,
-                              False,
+                              train=False,
                               rngs=({
                                   "drop_path": rng_dp,
                                   "dropout": rng_dp,
                               }))
-        assert out.shape == (4, 1000)
+        assert out.shape == (1, 1000)

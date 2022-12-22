@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Callable, Sequence, Tuple, Optional, List
+from typing import Any, Tuple, Optional, List
 from dataclasses import field
 import sys
 
@@ -19,18 +19,6 @@ Dtype = Any
 
 
 class ConvNeXtBlock(nn.Module):
-    """ ConvNeXt Block
-    There are two equivalent implementations:
-      (1) DwConv -> LayerNorm (channels_first) -> 1x1 Conv -> GELU -> 1x1 Conv; all in (N, C, H, W)
-      (2) DwConv -> Permute to (N, H, W, C); LayerNorm (channels_last) -> Linear -> GELU -> Linear; Permute back
-    Unlike the official impl, this one allows choice of 1 or 2, 1x1 conv can be faster with appropriate
-    choice of LayerNorm impl, however as model size increases the tradeoffs appear to change and nn.Linear
-    is a better choice. This was observed with PyTorch 1.10 on 3090 GPU, it could change over time & w/ different HW.
-    Args:
-        in_chs (int): Number of input channels.
-        drop_path (float): Stochastic depth rate. Default: 0.0
-        ls_init_value (float): Init value for Layer Scale. Default: 1e-6.
-    """
     in_chs: int
     out_chs: int = None
     kernel_size: int = 7
@@ -147,16 +135,21 @@ class ConvNextStage(nn.Module):
 
 class ConvNeXt(nn.Module):
     r""" ConvNeXt
-        A PyTorch impl of : `A ConvNet for the 2020s`  - https://arxiv.org/pdf/2201.03545.pdf
+        A ConvNeXt impl of : `A ConvNet for the 2020s`  - https://arxiv.org/pdf/2201.03545.pdf
     Args:
-        in_chans (int): Number of input image channels. Default: 3
+        in_chs (int): Number of input image channels. Default: 3
         num_classes (int): Number of classes for classification head. Default: 1000
+        global_pool (str): Type of global pooling
         depths (tuple(int)): Number of blocks at each stage. Default: [3, 3, 9, 3]
         dims (tuple(int)): Feature dimension at each stage. Default: [96, 192, 384, 768]
+        kernel_size (int): Kernel size of depth-wise conv. Default: 7
+        ls_init_value (float): Init value for Layer Scale. Default: 1e-6.
+        patch_size (int): Patch size of stem. Default: 4
+        act_layer (ModuleDef): Activation layer. Default: nn.gelu
         drop_rate (float): Head dropout rate
         drop_path_rate (float): Stochastic depth rate. Default: 0.
-        ls_init_value (float): Init value for Layer Scale. Default: 1e-6.
-        head_init_scale (float): Init scaling value for classifier weights and biases. Default: 1.
+        dtype (Dtype): Dtype of each layer. Default: jnp.float32
+        deterministic (Optional (bool)): If True, no dropout/droppath mask is sampled. Default: None
     """
 
     in_chs: int = 3
@@ -168,8 +161,6 @@ class ConvNeXt(nn.Module):
     kernel_size: int = 7
     ls_init_value: float = 1e-6
     patch_size: int = 4
-    head_init_scale: float = 1.
-    head_norm_first: bool = False
     conv_bias: bool = True
     act_layer: ModuleDef = nn.gelu
     drop_rate: float = 0.
@@ -229,7 +220,8 @@ class ConvNeXt(nn.Module):
         if self.num_classes > 0:
             self.head_dense = nn.Dense(self.num_classes, dtype=self.dtype)
 
-    def __call__(self, x, deterministic: Optional[bool] = None):
+    def __call__(self, x, train: Optional[bool] = None):
+        deterministic = train
         deterministic = nn.merge_param('deterministic', self.deterministic,
                                        deterministic)
 
@@ -285,8 +277,6 @@ def _create_convnext(rng: jax.random.PRNGKey,
                          kernel_size=7,
                          ls_init_value=1e-6,
                          patch_size=4,
-                         head_init_scale=1.,
-                         head_norm_first=False,
                          conv_bias=True,
                          act_layer=nn.gelu,
                          **kwargs)
