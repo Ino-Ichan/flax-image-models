@@ -288,7 +288,7 @@ def _create_convnext(rng: jax.random.PRNGKey,
             "dropout": rng_dropout,
         },
         jnp.ones(shape=(1, *input_shape)),
-        deterministic=False)["params"]
+        train=False)["params"]
 
     if pretrained:
         params_path = download_params(_params_url_dict[model_name])
