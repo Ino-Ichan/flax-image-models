@@ -245,13 +245,13 @@ class ConvNeXt(nn.Module):
 
 _params_url_dict = {
     "convnext_tiny":
-    "https://github.com/Ino-Ichan/flax-image-models/releases/download/v0.1-convnext/fbaipublicfiles-convnext_tiny.params",
+    "https://github.com/Ino-Ichan/flax-image-models/releases/download/v0.0.1-convnext/fbaipublicfiles-convnext_tiny.params",
     "convnext_small":
-    "https://github.com/Ino-Ichan/flax-image-models/releases/download/v0.1-convnext/fbaipublicfiles-convnext_small.params",
+    "https://github.com/Ino-Ichan/flax-image-models/releases/download/v0.0.1-convnext/fbaipublicfiles-convnext_small.params",
     "convnext_base":
-    "https://github.com/Ino-Ichan/flax-image-models/releases/download/v0.1-convnext/fbaipublicfiles-convnext_base.params",
+    "https://github.com/Ino-Ichan/flax-image-models/releases/download/v0.0.1-convnext/fbaipublicfiles-convnext_base.params",
     "convnext_large":
-    "https://github.com/Ino-Ichan/flax-image-models/releases/download/v0.1-convnext/fbaipublicfiles-convnext_large.params",
+    "https://github.com/Ino-Ichan/flax-image-models/releases/download/v0.0.1-convnext/fbaipublicfiles-convnext_large.params",
 }
 
 
