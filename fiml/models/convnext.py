@@ -221,7 +221,7 @@ class ConvNeXt(nn.Module):
             self.head_dense = nn.Dense(self.num_classes, dtype=self.dtype)
 
     def __call__(self, x, train: Optional[bool] = None):
-        deterministic = train
+        deterministic = not train
         deterministic = nn.merge_param('deterministic', self.deterministic,
                                        deterministic)
 
